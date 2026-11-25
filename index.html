@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#F8F7F4" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Advent 150K" />
+  <title>Half-Advent 150K — Run Challenge</title>
+
+  <!-- Dynamic PNG App Icons & Inline Web App Manifest Generator -->
+  <script>
+    (function bootstrapPWA() {
+      function generateAppIconDataUrl(size) {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return '';
+
+          const pad = Math.round(size * 0.08);
+          const radius = Math.round(size * 0.22);
+
+          // Base dark Nordic slate/forest background
+          ctx.fillStyle = '#182420';
+          ctx.fillRect(0, 0, size, size);
+
+          // Inner subtle architectural frame
+          ctx.strokeStyle = 'rgba(248, 247, 244, 0.14)';
+          ctx.lineWidth = Math.max(2, Math.round(size * 0.014));
+          ctx.beginPath();
+          if (ctx.roundRect) {
+            ctx.roundRect(pad, pad, size - pad * 2, size - pad * 2, radius);
+          } else {
+            ctx.rect(pad, pad, size - pad * 2, size - pad * 2);
+          }
+          ctx.stroke();
+
+          // Nordic geometric mountain/stride chevron emblem
+          const cx = size * 0.5;
+          ctx.strokeStyle = '#3D6B52';
+          ctx.lineWidth = Math.max(4, Math.round(size * 0.036));
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.beginPath();
+          ctx.moveTo(size * 0.24, size * 0.36);
+          ctx.lineTo(cx, size * 0.20);
+          ctx.lineTo(size * 0.76, size * 0.36);
+          ctx.stroke();
+
+          // Terracotta accent dot (advent spark)
+          ctx.fillStyle = '#C85A32';
+          ctx.beginPath();
+          ctx.arc(cx, size * 0.33, Math.max(3, size * 0.028), 0, Math.PI * 2);
+          ctx.fill();
+
+          // Crisp "150K" primary emblem text
+          ctx.fillStyle = '#F8F7F4';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.font = `700 ${Math.round(size * 0.23)}px Inter, -apple-system, BlinkMacSystemFont, sans-serif`;
+          ctx.fillText('150K', cx, size * 0.56);
+
+          // Subtitle "24 RUNS" badge
+          ctx.fillStyle = '#A7C4B5';
+          ctx.font = `600 ${Math.round(size * 0.085)}px Inter, -apple-system, BlinkMacSystemFont, sans-serif`;
+          ctx.fillText('24 DAYS · DEC', cx, size * 0.77);
+
+          return canvas.toDataURL('image/png');
+        } catch (e) {
+          return '';
+        }
+      }
+
+      const icon192 = generateAppIconDataUrl(192);
+      const icon512 = generateAppIconDataUrl(512);
+
+      if (icon192) {
+        const linkIcon = document.createElement('link');
+        linkIcon.rel = 'icon';
+        linkIcon.type = 'image/png';
+        linkIcon.sizes = '192x192';
+        linkIcon.href = icon192;
+        document.head.appendChild(linkIcon);
+
+        const appleIcon = document.createElement('link');
+        appleIcon.rel = 'apple-touch-icon';
+        appleIcon.sizes = '192x192';
+        appleIcon.href = icon192;
+        document.head.appendChild(appleIcon);
+      }
+
+      // Build inline Web App Manifest as Blob URL
+      try {
+        const baseUrl = window.location.href.split('#')[0].split('?')[0];
+        const manifestObj = {
+          name: 'Half-Advent 150K',
+          short_name: 'Advent 150K',
+          description: '24-day December running challenge tracker (0.5 km to 12.0 km) with smart daily recommendations.',
+          start_url: baseUrl.startsWith('http') ? baseUrl : './',
+          scope: baseUrl.startsWith('http') ? baseUrl.substring(0, baseUrl.lastIndexOf('/') + 1) : './',
+          display: 'standalone',
+          orientation: 'portrait',
+          background_color: '#F8F7F4',
+          theme_color: '#F8F7F4',
+          icons: [
+            ...(icon192 ? [{ src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' }] : []),
+            ...(icon512 ? [{ src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }] : [])
+          ]
+        };
+
+        const blob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+        const manifestUrl = URL.createObjectURL(blob);
+        const manifestLink = document.createElement('link');
+        manifestLink.rel = 'manifest';
+        manifestLink.href = manifestUrl;
+        document.head.appendChild(manifestLink);
+      } catch (e) {
+        // Ignore manifest errors in restricted sandboxes
+      }
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+          },
+          colors: {
+            paper: '#F8F7F4',
+            surface: '#FFFFFF',
+            ink: '#1A1A1A',
+            slateMuted: '#5C6166',
+            borderWarm: '#E5E2DC',
+            terracotta: '#C85A32',
+            terracottaSoft: '#FBF0EC',
+            sage: '#3D6B52',
+            sageSoft: '#EDF4F0',
+            amberWarn: '#B45309',
+            amberSoft: '#FEF3C7',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #F8F7F4;
+      color: #1A1A1A;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F8F7F4;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D5D1C8;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-paper text-ink antialiased selection:bg-terracotta/20">
+
+  <!-- Main Mobile-First Container -->
+  <div class="max-w-xl mx-auto px-4 pt-5 pb-16">
+
+    <!-- Header & Date Simulator -->
+    <header class="flex items-start justify-between gap-3 mb-4">
+      <div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="inline-block w-2 h-2 rounded-full bg-terracotta"></span>
+          <span class="text-xs font-semibold uppercase tracking-widest text-slateMuted">Dec 1–24, 2026</span>
+          <button id="pwaStatusPill" type="button" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sageSoft text-sage border border-sage/25 hover:opacity-90 transition-opacity" title="View PWA & Offline status">
+            <span id="pwaStatusDot" class="w-1.5 h-1.5 rounded-full bg-sage"></span>
+            <span id="pwaStatusText">Offline Ready</span>
+          </button>
+        </div>
+        <h1 class="text-2xl font-bold tracking-tight text-ink mt-0.5">Half-Advent 150K</h1>
+      </div>
+
+      <!-- Simulated / Current Date Selector for Planning & Live Tracking -->
+      <div class="flex flex-col items-end">
+        <label for="simDateSelect" class="text-[11px] font-medium text-slateMuted mb-1">Reference Date</label>
+        <select id="simDateSelect" class="bg-surface border border-borderWarm text-ink text-xs font-medium rounded-lg px-2.5 py-1.5 shadow-sm focus:outline-none focus:ring-2 focus:ring-terracotta/40 tabular-nums">
+          <!-- Populated by JS -->
+        </select>
+      </div>
+    </header>
+
+    <!-- Guardrail Reminder Pills -->
+    <div class="flex flex-wrap items-center gap-1.5 mb-5">
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-surface border border-borderWarm text-ink tabular-nums">
+        <svg class="w-3.5 h-3.5 text-terracotta" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"/></svg>
+        Easy ~5:45/km
+      </span>
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-surface border border-borderWarm text-ink tabular-nums">
+        <svg class="w-3.5 h-3.5 text-terracotta" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        HR &lt; 140 bpm
+      </span>
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-surface border border-borderWarm text-ink tabular-nums">
+        <svg class="w-3.5 h-3.5 text-sage" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Cadence 172+ spm
+      </span>
+    </div>
+
+    <!-- Top Dashboard Summary Card -->
+    <section class="bg-surface border border-borderWarm rounded-2xl p-4 sm:p-5 shadow-sm mb-5">
+      <div class="flex items-baseline justify-between mb-2">
+        <div>
+          <span id="completedKmText" class="text-3xl font-bold tracking-tight tabular-nums text-ink">0.0</span>
+          <span class="text-sm font-medium text-slateMuted tabular-nums">/ 150.0 km</span>
+        </div>
+        <div class="text-right">
+          <span id="completedCountText" class="text-sm font-semibold text-sage tabular-nums">0 / 24 runs</span>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="w-full h-2.5 bg-paper rounded-full overflow-hidden border border-borderWarm/70 mb-4">
+        <div id="progressBar" class="h-full bg-sage rounded-full transition-all duration-300" style="width: 0%"></div>
+      </div>
+
+      <!-- Key Sub-metrics -->
+      <div class="grid grid-cols-3 gap-2 pt-3 border-t border-borderWarm/80">
+        <div>
+          <p class="text-[11px] font-medium text-slateMuted uppercase tracking-wider">Remaining</p>
+          <p id="remainingKmText" class="text-base sm:text-lg font-semibold text-ink tabular-nums mt-0.5">150.0 km</p>
+        </div>
+        <div>
+          <p class="text-[11px] font-medium text-slateMuted uppercase tracking-wider">Days Left</p>
+          <p id="daysLeftText" class="text-base sm:text-lg font-semibold text-ink tabular-nums mt-0.5">24 days</p>
+        </div>
+        <div>
+          <p class="text-[11px] font-medium text-slateMuted uppercase tracking-wider">Req. Daily Avg</p>
+          <p id="reqAvgText" class="text-base sm:text-lg font-semibold text-terracotta tabular-nums mt-0.5">6.25 km/d</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Smart Recommender Card: "What Should I Run Today?" -->
+    <section class="bg-surface border border-borderWarm rounded-2xl p-4 sm:p-5 shadow-sm mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-base font-bold tracking-tight text-ink">What Should I Run Today?</h2>
+        <span class="text-[11px] font-medium text-slateMuted bg-paper px-2 py-0.5 rounded-md border border-borderWarm">Smart Picker</span>
+      </div>
+
+      <!-- Time Window Selector -->
+      <div class="mb-3.5">
+        <label class="block text-xs font-medium text-slateMuted mb-1.5">Available Window</label>
+        <div class="grid grid-cols-3 gap-1.5" id="windowSelector">
+          <button type="button" data-window="15" class="window-btn py-2 px-2 rounded-xl text-xs font-medium border text-center transition-all">
+            <span class="block font-semibold">15 min</span>
+            <span class="block text-[10px] opacity-80">Travel / Micro</span>
+          </button>
+          <button type="button" data-window="45" class="window-btn py-2 px-2 rounded-xl text-xs font-medium border text-center transition-all">
+            <span class="block font-semibold">45 min</span>
+            <span class="block text-[10px] opacity-80">Lunchtime</span>
+          </button>
+          <button type="button" data-window="60" class="window-btn py-2 px-2 rounded-xl text-xs font-medium border text-center transition-all">
+            <span class="block font-semibold">60+ min</span>
+            <span class="block text-[10px] opacity-80">Eve / Wknd</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Leg Status Selector -->
+      <div class="mb-4">
+        <label class="block text-xs font-medium text-slateMuted mb-1.5">Leg &amp; Tendon Status</label>
+        <div class="grid grid-cols-3 gap-1.5" id="legSelector">
+          <button type="button" data-leg="fresh" class="leg-btn py-2 px-2 rounded-xl text-xs font-medium border text-center transition-all">
+            Fresh
+          </button>
+          <button type="button" data-leg="normal" class="leg-btn py-2 px-2 rounded-xl text-xs font-medium border text-center transition-all">
+            Normal
+          </button>
+          <button type="button" data-leg="tight" class="leg-btn py-2 px-2 rounded-xl text-xs font-medium border text-center transition-all">
+            Calf/Quad Tight
+          </button>
+        </div>
+      </div>
+
+      <!-- Dynamic Guardrail / Warning Banner -->
+      <div id="recommenderBanner" class="hidden mb-3.5 px-3 py-2.5 rounded-xl text-xs leading-relaxed border"></div>
+
+      <!-- Recommended Results Area -->
+      <div id="recommenderOutput">
+        <!-- Populated dynamically by JS -->
+      </div>
+    </section>
+
+    <!-- View Mode Toggle (24-Tile Grid vs Dec 1-24 Timeline) -->
+    <div class="flex items-center justify-between mb-3">
+      <div class="inline-flex bg-borderWarm/60 p-1 rounded-xl" role="tablist">
+        <button id="tabGridBtn" type="button" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-surface text-ink shadow-sm">
+          24-Tile Pool
+        </button>
+        <button id="tabTimelineBtn" type="button" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-slateMuted hover:text-ink">
+          Dec 1–24 Plan
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3 text-[11px] text-slateMuted">
+        <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-sage"></span>Done</span>
+        <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-terracotta"></span>Next</span>
+      </div>
+    </div>
+
+    <!-- VIEW 1: 24-Tile Advent Grid -->
+    <section id="gridView" class="grid grid-cols-4 gap-2 sm:gap-2.5 mb-8">
+      <!-- 24 Tiles populated by JS -->
+    </section>
+
+    <!-- VIEW 2: Dec 1-24 Timeline View -->
+    <section id="timelineView" class="hidden space-y-2 mb-8">
+      <!-- 24 Day Cards populated by JS -->
+    </section>
+
+    <!-- Footer: Persistence, JSON Export/Import & Safe Reset -->
+    <footer class="border-t border-borderWarm pt-5 mt-4">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="exportJsonBtn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-surface border border-borderWarm text-ink hover:bg-paper transition-colors">
+            Export JSON
+          </button>
+          <label for="importJsonInput" class="cursor-pointer px-3 py-1.5 rounded-lg text-xs font-medium bg-surface border border-borderWarm text-ink hover:bg-paper transition-colors">
+            Import JSON
+          </label>
+          <input id="importJsonInput" type="file" accept=".json,application/json" class="hidden" />
+          <button id="openPwaModalBtn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-sageSoft border border-sage/30 text-sage hover:opacity-90 transition-opacity">
+            Install App
+          </button>
+        </div>
+
+        <button id="resetTriggerBtn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slateMuted hover:text-terracotta transition-colors">
+          Reset Data
+        </button>
+      </div>
+
+      <!-- Inline Confirmation Box for Reset (No window.confirm used) -->
+      <div id="resetConfirmBox" class="hidden mt-3 p-3 rounded-xl bg-terracottaSoft border border-terracotta/30 flex items-center justify-between gap-3">
+        <p class="text-xs text-ink font-medium">Reset all 24 runs and restore default December schedule?</p>
+        <div class="flex items-center gap-2 shrink-0">
+          <button id="resetCancelBtn" type="button" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-surface border border-borderWarm text-ink">Cancel</button>
+          <button id="resetConfirmBtn" type="button" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-terracotta text-white">Reset</button>
+        </div>
+      </div>
+
+      <!-- Toast / Status Notification -->
+      <div id="statusToast" class="hidden mt-3 px-3 py-2 rounded-xl bg-ink text-white text-xs font-medium text-center transition-opacity"></div>
+
+      <p class="text-[11px] text-slateMuted mt-4 leading-relaxed">
+        Saved automatically to this device. Watch targets include a +0.06 km GPS buffer.
+      </p>
+    </footer>
+  </div>
+
+  <!-- PWA Install & Offline Service Worker Modal -->
+  <div id="pwaSetupModal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-ink/40 backdrop-blur-[2px] p-0 sm:p-4">
+    <div class="bg-surface w-full max-w-md rounded-t-3xl sm:rounded-2xl border border-borderWarm p-5 shadow-xl">
+      <div class="w-10 h-1 bg-borderWarm rounded-full mx-auto mb-4 sm:hidden"></div>
+
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <span class="inline-block px-2 py-0.5 rounded-md text-[11px] font-semibold uppercase tracking-wider mb-1 bg-sageSoft text-sage">Standalone PWA</span>
+          <h3 class="text-xl font-bold text-ink">Install on Android / Phone</h3>
+        </div>
+        <button id="closePwaModalBtn" type="button" class="p-2 rounded-full text-slateMuted hover:text-ink hover:bg-paper transition-colors" aria-label="Close">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs text-ink leading-relaxed mb-4">
+        <div class="p-3 rounded-xl bg-paper border border-borderWarm">
+          <p class="font-semibold text-ink mb-1">1. Host on HTTPS (GitHub Pages / Netlify Drop)</p>
+          <p class="text-slateMuted">Download this HTML file and drop it onto Netlify Drop or GitHub Pages so Chrome sees an <code class="text-ink font-mono">https://</code> address.</p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-paper border border-borderWarm">
+          <p class="font-semibold text-ink mb-1">2. Add to Home Screen in Chrome</p>
+          <p class="text-slateMuted">Open the HTTPS link in Chrome on Android, tap <strong class="text-ink">⋮ Menu → Add to Home screen → Install</strong>. It will launch full-screen with the custom 150K app icon.</p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-paper border border-borderWarm">
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <p class="font-semibold text-ink">3. Optional: Full Offline Cache (sw.js)</p>
+            <span id="swStatusBadge" class="text-[10px] font-semibold px-2 py-0.5 rounded bg-surface border border-borderWarm text-slateMuted">Local Storage Active</span>
+          </div>
+          <p class="text-slateMuted mb-2.5">Place <code class="text-ink font-mono">sw.js</code> in the same folder as <code class="text-ink font-mono">index.html</code> so the entire UI loads even in airplane mode on flights to Nice.</p>
+          <button id="downloadSwBtn" type="button" class="w-full py-2 px-3 rounded-lg text-xs font-semibold bg-surface border border-borderWarm text-ink hover:bg-borderWarm/40 transition-colors">
+            Download Companion sw.js
+          </button>
+        </div>
+      </div>
+
+      <!-- Direct Browser Install Prompt Button (shown automatically if Chrome fires beforeinstallprompt) -->
+      <button id="nativeInstallPromptBtn" type="button" class="hidden w-full py-2.5 px-4 mb-2 rounded-xl text-xs font-semibold text-white bg-terracotta hover:opacity-95 transition-opacity shadow-sm">
+        Install App Now
+      </button>
+
+      <button id="donePwaModalBtn" type="button" class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-sage hover:opacity-95 transition-opacity">
+        Got It
+      </button>
+    </div>
+  </div>
+
+  <!-- Tile Detail & Action Modal / Bottom Sheet -->
+  <div id="tileModal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-ink/40 backdrop-blur-[2px] p-0 sm:p-4">
+    <div class="bg-surface w-full max-w-md rounded-t-3xl sm:rounded-2xl border border-borderWarm p-5 shadow-xl transform transition-all">
+      <!-- Modal Top Handle (Mobile) -->
+      <div class="w-10 h-1 bg-borderWarm rounded-full mx-auto mb-4 sm:hidden"></div>
+
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <span id="modalStatusBadge" class="inline-block px-2 py-0.5 rounded-md text-[11px] font-semibold uppercase tracking-wider mb-1">Remaining</span>
+          <h3 id="modalTitle" class="text-2xl font-bold text-ink tabular-nums">8.0 km</h3>
+          <p id="modalRoleText" class="text-xs text-slateMuted mt-0.5">Max lunchtime window (~46 min)</p>
+        </div>
+        <button id="closeModalBtn" type="button" class="p-2 rounded-full text-slateMuted hover:text-ink hover:bg-paper transition-colors" aria-label="Close">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Watch-Safe Target & Duration Box -->
+      <div class="grid grid-cols-2 gap-2.5 bg-paper border border-borderWarm rounded-xl p-3 mb-4">
+        <div>
+          <span class="block text-[11px] font-medium text-slateMuted">Garmin Watch Target</span>
+          <span id="modalWatchTarget" class="text-base font-bold text-terracotta tabular-nums">8.06 km</span>
+          <span class="block text-[10px] text-slateMuted">+0.06 km GPS buffer</span>
+        </div>
+        <div>
+          <span class="block text-[11px] font-medium text-slateMuted">Est. Time (@ 5:45/km)</span>
+          <span id="modalEstTime" class="text-base font-bold text-ink tabular-nums">46 min</span>
+          <span class="block text-[10px] text-slateMuted">HR &lt;140 · 172+ spm</span>
+        </div>
+      </div>
+
+      <!-- Editable Fields -->
+      <div class="space-y-3 mb-5">
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label for="modalPlannedDate" class="block text-xs font-medium text-slateMuted mb-1">Planned Dec Date</label>
+            <select id="modalPlannedDate" class="w-full bg-paper border border-borderWarm rounded-xl px-3 py-2 text-xs font-medium text-ink focus:outline-none focus:ring-2 focus:ring-terracotta/40 tabular-nums">
+              <!-- Populated by JS -->
+            </select>
+          </div>
+          <div>
+            <label for="modalCompletedDate" class="block text-xs font-medium text-slateMuted mb-1">Date Completed</label>
+            <select id="modalCompletedDate" class="w-full bg-paper border border-borderWarm rounded-xl px-3 py-2 text-xs font-medium text-ink focus:outline-none focus:ring-2 focus:ring-sage/40 tabular-nums">
+              <!-- Populated by JS -->
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="modalNoteInput" class="block text-xs font-medium text-slateMuted mb-1">Logistics / Route Note</label>
+          <input id="modalNoteInput" type="text" placeholder="e.g., Lunch Hub Nordic, Villefranche coast..." class="w-full bg-paper border border-borderWarm rounded-xl px-3 py-2 text-xs text-ink placeholder:text-slateMuted/60 focus:outline-none focus:ring-2 focus:ring-terracotta/40" />
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2.5">
+        <button id="modalSaveOnlyBtn" type="button" class="flex-1 py-2.5 px-4 rounded-xl text-xs font-semibold bg-paper border border-borderWarm text-ink hover:bg-borderWarm/40 transition-colors">
+          Save Details
+        </button>
+        <button id="modalToggleCompleteBtn" type="button" class="flex-[1.6] py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-sage hover:opacity-95 transition-opacity shadow-sm">
+          Mark Complete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Half-Advent 150K Run Challenge Application
+     * Distances: 0.5 km to 12.0 km in 0.5 km increments (24 runs, 150.0 km total)
+     * Easy pace reference: 5:45 /km (5.75 min/km)
+     */
+
+    const STORAGE_KEY = 'half_advent_150k_v1';
+    const PACE_MIN_PER_KM = 5.75; // 5:45/km easy pace
+
+    // Dec 1 to Dec 24, 2026 calendar metadata (Dec 1, 2026 is a Tuesday)
+    const DEC_DAYS = Array.from({ length: 24 }, (_, idx) => {
+      const day = idx + 1;
+      const dateStr = `2026-12-${String(day).padStart(2, '0')}`;
+      const dateObj = new Date(2026, 11, day);
+      const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+      let tag = 'Copenhagen';
+      if (day === 7) tag = 'Travel CPH → NCE';
+      else if (day >= 8 && day <= 12) tag = 'Villefranche-sur-Mer';
+      else if (day === 13) tag = 'Travel NCE → CPH';
+      else if (day === 24) tag = 'Christmas Eve';
+      return { day, dateStr, weekday, label: `Dec ${day} (${weekday})`, tag };
+    });
+
+    // Smart default plan balancing gradual ramp-up, commute windows, and Dec 7–13 France travel
+    const DEFAULT_SCHEDULE_MAP = {
+      3.0:  { plannedDate: '2026-12-01', note: 'Evening (>8pm) · Gentle streak opener' },
+      5.0:  { plannedDate: '2026-12-02', note: 'Lunchtime (Hub Nordic) · Easy aerobic' },
+      2.0:  { plannedDate: '2026-12-03', note: 'Evening (>8pm) · Calf/quad recovery flush' },
+      6.5:  { plannedDate: '2026-12-04', note: 'Run-commute (Office → Home)' },
+      8.5:  { plannedDate: '2026-12-05', note: 'Weekend daytime · Week 1 peak' },
+      4.5:  { plannedDate: '2026-12-06', note: 'Weekend daytime · Pre-travel shakeout' },
+      0.5:  { plannedDate: '2026-12-07', note: 'Travel day (CPH → NCE) · Micro-run' },
+      9.0:  { plannedDate: '2026-12-08', note: 'France daytime (babysitting) · Step-up' },
+      2.5:  { plannedDate: '2026-12-09', note: 'France easy · Active recovery flush' },
+      10.5: { plannedDate: '2026-12-10', note: 'France daytime (babysitting) · First 10k+' },
+      7.5:  { plannedDate: '2026-12-11', note: 'France daytime (babysitting) · Steady' },
+      9.5:  { plannedDate: '2026-12-12', note: 'France daytime (babysitting) · Coast finale' },
+      1.0:  { plannedDate: '2026-12-13', note: 'Travel day (NCE → CPH) · Quick tick-off' },
+      11.0: { plannedDate: '2026-12-14', note: 'Evening (>8pm) · Post-travel push' },
+      1.5:  { plannedDate: '2026-12-15', note: 'Evening (>8pm) · Recovery flush' },
+      7.0:  { plannedDate: '2026-12-16', note: 'Run-commute (Home ↔ Office)' },
+      8.0:  { plannedDate: '2026-12-17', note: 'Lunchtime (Hub Nordic) · Max 45m window' },
+      4.0:  { plannedDate: '2026-12-18', note: 'Lunchtime (Hub Nordic) · Pre-wknd taper' },
+      11.5: { plannedDate: '2026-12-19', note: 'Weekend daytime · Long weekend run' },
+      5.5:  { plannedDate: '2026-12-20', note: 'Weekend daytime · Recovery flush' },
+      10.0: { plannedDate: '2026-12-21', note: 'Evening (>8pm) · Last 10k effort' },
+      6.0:  { plannedDate: '2026-12-22', note: 'Lunchtime or run-commute · Buffer' },
+      12.0: { plannedDate: '2026-12-23', note: 'Evening (>8pm) · Peak distance finale' },
+      3.5:  { plannedDate: '2026-12-24', note: 'Christmas Eve daytime · Easy finish' },
+    };
+
+    function createInitialState() {
+      const tiles = [];
+      for (let i = 1; i <= 24; i++) {
+        const dist = Number((i * 0.5).toFixed(1));
+        const preset = DEFAULT_SCHEDULE_MAP[dist] || { plannedDate: '2026-12-01', note: '' };
+        tiles.push({
+          distance: dist,
+          completed: false,
+          completedDate: null,
+          plannedDate: preset.plannedDate,
+          note: preset.note,
+        });
+      }
+      return {
+        tiles,
+        selectedWindow: 45, // 15 | 45 | 60
+        selectedLeg: 'normal', // 'fresh' | 'normal' | 'tight'
+        activeTab: 'grid', // 'grid' | 'timeline'
+        referenceDate: '2026-12-01', // Defaults to Dec 1 for planning; auto-detects if inside Dec 1-24
+      };
+    }
+
+    // Load or initialize state
+    let state = loadState();
+    let activeModalDistance = null;
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.tiles) && parsed.tiles.length === 24) {
+            return parsed;
+          }
+        }
+      } catch (err) {
+        console.error('Failed to read localStorage:', err);
+      }
+      const initial = createInitialState();
+      // If real-world date is within Dec 1-24, 2026, default referenceDate to today
+      const now = new Date();
+      if (now.getFullYear() === 2026 && now.getMonth() === 11 && now.getDate() >= 1 && now.getDate() <= 24) {
+        initial.referenceDate = `2026-12-${String(now.getDate()).padStart(2, '0')}`;
+      }
+      return initial;
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (err) {
+        console.error('Failed to save localStorage:', err);
+      }
+    }
+
+    // Formatting Helpers
+    function formatKm(km) {
+      return `${Number(km).toFixed(1)} km`;
+    }
+
+    function formatWatchTarget(km) {
+      return `${(Number(km) + 0.06).toFixed(2)} km`;
+    }
+
+    function estimateMinutes(km) {
+      return Math.max(3, Math.round(Number(km) * PACE_MIN_PER_KM));
+    }
+
+    function getDayNumber(dateStr) {
+      if (!dateStr) return 1;
+      const parts = dateStr.split('-');
+      return parseInt(parts[2], 10) || 1;
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('statusToast');
+      toast.textContent = msg;
+      toast.classList.remove('hidden');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2800);
+    }
+
+    // Core Calculations
+    function getMetrics() {
+      const completedTiles = state.tiles.filter(t => t.completed);
+      const remainingTiles = state.tiles.filter(t => !t.completed);
+
+      const completedKm = completedTiles.reduce((sum, t) => sum + t.distance, 0);
+      const remainingKm = Math.max(0, 150 - completedKm);
+
+      const refDay = getDayNumber(state.referenceDate);
+      // Days remaining including reference date through Dec 24
+      const calendarDaysLeft = Math.max(1, 24 - refDay + 1);
+      // Also consider remaining tiles count so required avg reflects actual runs left
+      const effectiveDaysLeft = remainingTiles.length === 0 ? 0 : calendarDaysLeft;
+      const reqDailyAvg = effectiveDaysLeft > 0 ? remainingKm / effectiveDaysLeft : 0;
+
+      // Determine most recently logged run (by completedDate desc, then distance desc)
+      let lastLoggedRun = null;
+      if (completedTiles.length > 0) {
+        const sortedLogged = [...completedTiles].sort((a, b) => {
+          const dA = a.completedDate || '2026-12-01';
+          const dB = b.completedDate || '2026-12-01';
+          if (dB !== dA) return dB.localeCompare(dA);
+          return b.distance - a.distance;
+        });
+        lastLoggedRun = sortedLogged[0];
+      }
+
+      return {
+        completedTiles,
+        remainingTiles,
+        completedKm,
+        remainingKm,
+        refDay,
+        calendarDaysLeft,
+        reqDailyAvg,
+        lastLoggedRun
+      };
+    }
+
+    // Smart Recommender Logic
+    function getRecommendations(metrics) {
+      const { remainingTiles, remainingKm, calendarDaysLeft, reqDailyAvg, lastLoggedRun } = metrics;
+
+      if (remainingTiles.length === 0) {
+        return { recs: [], warnings: [], allDone: true };
+      }
+
+      // Max distance allowed by selected time window at ~5:45/km
+      const windowMaxMap = { 15: 2.5, 45: 8.0, 60: 12.0 };
+      const maxByWindow = windowMaxMap[state.selectedWindow] || 8.0;
+
+      // Recovery Guardrail check
+      const hadHeavyYesterday = lastLoggedRun && lastLoggedRun.distance >= 9.0;
+      const isTight = state.selectedLeg === 'tight';
+      const enforceRecoveryCap = hadHeavyYesterday || isTight;
+
+      const warnings = [];
+      if (isTight) {
+        warnings.push({
+          type: 'recovery',
+          text: 'Calf/Quad Tightness active: Blocking runs ≥ 9.0 km and prioritizing gentle recovery distances (≤ 4.5 km). Focus on 172+ spm cadence.'
+        });
+      } else if (hadHeavyYesterday) {
+        warnings.push({
+          type: 'recovery',
+          text: `Recovery Sandwich active: Your last logged run was ${formatKm(lastLoggedRun.distance)}. Blocking ≥ 9.0 km today to protect tendons.`
+        });
+      }
+
+      // Filter candidate tiles
+      let candidates = remainingTiles.filter(t => t.distance <= maxByWindow);
+      if (enforceRecoveryCap) {
+        const capped = candidates.filter(t => t.distance < 9.0);
+        if (capped.length > 0) candidates = capped;
+      }
+
+      // Fallback if all remaining tiles exceed the selected window
+      let exceededWindowFallback = false;
+      if (candidates.length === 0) {
+        exceededWindowFallback = true;
+        candidates = [...remainingTiles].sort((a, b) => a.distance - b.distance).slice(0, 3);
+        warnings.push({
+          type: 'warn',
+          text: `All remaining runs exceed your ${state.selectedWindow}-min window. Showing your shortest unclaimed distances.`
+        });
+      }
+
+      // Check if picking a short run leaves a dangerous daily average for remaining days
+      const plannedForToday = remainingTiles.find(t => t.plannedDate === state.referenceDate);
+
+      // Score candidates
+      const scored = candidates.map(tile => {
+        let score = 0;
+
+        // 1. Strongly reward matching today's pre-planned tile if safe
+        if (plannedForToday && tile.distance === plannedForToday.distance) {
+          score += 35;
+        }
+
+        // 2. Match leg status & window intent
+        if (enforceRecoveryCap) {
+          // Prefer 0.5 to 4.5 km recovery runs
+          if (tile.distance <= 4.5) score += 40 - Math.abs(tile.distance - 2.5) * 4;
+          else score -= (tile.distance - 4.5) * 8;
+        } else if (state.selectedLeg === 'fresh') {
+          // Fresh legs: knock out the largest feasible distance for the window
+          score += tile.distance * 4.5;
+        } else {
+          // Normal legs: aim near required daily average or upper-mid window capacity
+          const targetIdeal = Math.min(maxByWindow, Math.max(reqDailyAvg, maxByWindow * 0.75));
+          score += 35 - Math.abs(tile.distance - targetIdeal) * 3.5;
+        }
+
+        // 3. Backlog protection: if required daily average is climbing (>= 7.5 km/d), boost larger runs when legs aren't tight
+        if (!enforceRecoveryCap && reqDailyAvg >= 7.5) {
+          score += tile.distance * 2.5;
+        }
+
+        return { tile, score };
+      });
+
+      scored.sort((a, b) => b.score - a.score);
+      const recs = scored.slice(0, 3).map(s => s.tile);
+
+      // Post-pick backlog check: what happens if the user runs the top pick today?
+      if (!exceededWindowFallback && recs.length > 0 && calendarDaysLeft > 1) {
+        const topPick = recs[0];
+        const postRunRemainingKm = remainingKm - topPick.distance;
+        const postRunDays = calendarDaysLeft - 1;
+        const nextAvg = postRunRemainingKm / postRunDays;
+        const remainingBigRuns = remainingTiles.filter(t => t.distance >= 9.5 && t.distance !== topPick.distance).length;
+
+        if (nextAvg > 8.5) {
+          warnings.push({
+            type: 'warn',
+            text: `Schedule alert: Running ${formatKm(topPick.distance)} today leaves ${nextAvg.toFixed(1)} km/day across the final ${postRunDays} days (${remainingBigRuns} runs ≥ 9.5 km left).`
+          });
+        }
+      }
+
+      return { recs, warnings, allDone: false };
+    }
+
+    // Render Functions
+    function renderAll() {
+      const metrics = getMetrics();
+      renderDashboard(metrics);
+      renderRecommender(metrics);
+      renderGrid(metrics);
+      renderTimeline(metrics);
+      updateSelectorButtons();
+    }
+
+    function renderDashboard(metrics) {
+      const { completedTiles, completedKm, remainingKm, calendarDaysLeft, reqDailyAvg } = metrics;
+      const pct = Math.min(100, (completedKm / 150) * 100);
+
+      document.getElementById('completedKmText').textContent = completedKm.toFixed(1);
+      document.getElementById('completedCountText').textContent = `${completedTiles.length} / 24 runs`;
+      document.getElementById('progressBar').style.width = `${pct}%`;
+      document.getElementById('remainingKmText').textContent = `${remainingKm.toFixed(1)} km`;
+      document.getElementById('daysLeftText').textContent = `${calendarDaysLeft} ${calendarDaysLeft === 1 ? 'day' : 'days'}`;
+
+      const reqAvgEl = document.getElementById('reqAvgText');
+      reqAvgEl.textContent = `${reqDailyAvg.toFixed(2)} km/d`;
+      if (reqDailyAvg > 8.5) {
+        reqAvgEl.className = 'text-base sm:text-lg font-bold text-amberWarn tabular-nums mt-0.5';
+      } else if (completedTiles.length === 24) {
+        reqAvgEl.className = 'text-base sm:text-lg font-bold text-sage tabular-nums mt-0.5';
+      } else {
+        reqAvgEl.className = 'text-base sm:text-lg font-semibold text-terracotta tabular-nums mt-0.5';
+      }
+    }
+
+    function updateSelectorButtons() {
+      document.querySelectorAll('.window-btn').forEach(btn => {
+        const val = Number(btn.dataset.window);
+        if (val === state.selectedWindow) {
+          btn.className = 'window-btn py-2 px-2 rounded-xl text-xs font-medium border text-center transition-all bg-ink text-white border-ink shadow-sm';
+        } else {
+          btn.className = 'window-btn py-2 px-2 rounded-xl text-xs font-medium border text-center transition-all bg-paper text-ink border-borderWarm hover:border-ink/40';
+        }
+      });
+
+      document.querySelectorAll('.leg-btn').forEach(btn => {
+        const val = btn.dataset.leg;
+        if (val === state.selectedLeg) {
+          const activeColor = val === 'tight'
+            ? 'bg-terracotta text-white border-terracotta shadow-sm'
+            : 'bg-ink text-white border-ink shadow-sm';
+          btn.className = `leg-btn py-2 px-2 rounded-xl text-xs font-semibold border text-center transition-all ${activeColor}`;
+        } else {
+          btn.className = 'leg-btn py-2 px-2 rounded-xl text-xs font-medium border text-center transition-all bg-paper text-ink border-borderWarm hover:border-ink/40';
+        }
+      });
+
+      // Tabs
+      const gridBtn = document.getElementById('tabGridBtn');
+      const timeBtn = document.getElementById('tabTimelineBtn');
+      const gridView = document.getElementById('gridView');
+      const timelineView = document.getElementById('timelineView');
+
+      if (state.activeTab === 'grid') {
+        gridBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-surface text-ink shadow-sm';
+        timeBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-slateMuted hover:text-ink';
+        gridView.classList.remove('hidden');
+        timelineView.classList.add('hidden');
+      } else {
+        timeBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-surface text-ink shadow-sm';
+        gridBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-slateMuted hover:text-ink';
+        timelineView.classList.remove('hidden');
+        gridView.classList.add('hidden');
+      }
+    }
+
+    function renderRecommender(metrics) {
+      const { recs, warnings, allDone } = getRecommendations(metrics);
+      const bannerEl = document.getElementById('recommenderBanner');
+      const outputEl = document.getElementById('recommenderOutput');
+
+      if (allDone) {
+        bannerEl.classList.add('hidden');
+        outputEl.innerHTML = `
+          <div class="p-4 rounded-xl bg-sageSoft border border-sage/30 text-center">
+            <p class="text-sm font-bold text-sage">All 24 Runs Completed (150.0 km)</p>
+            <p class="text-xs text-slateMuted mt-1">Half-Advent challenge complete. Merry Christmas!</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (warnings.length > 0) {
+        const w = warnings[0];
+        bannerEl.classList.remove('hidden');
+        if (w.type === 'recovery') {
+          bannerEl.className = 'mb-3.5 px-3 py-2.5 rounded-xl text-xs leading-relaxed border bg-terracottaSoft border-terracotta/30 text-ink';
+        } else {
+          bannerEl.className = 'mb-3.5 px-3 py-2.5 rounded-xl text-xs leading-relaxed border bg-amberSoft border-amberWarn/30 text-ink';
+        }
+        bannerEl.textContent = w.text;
+      } else {
+        bannerEl.classList.add('hidden');
+      }
+
+      const top = recs[0];
+      const runnersUp = recs.slice(1);
+
+      let html = `
+        <div class="p-3.5 rounded-xl bg-terracottaSoft/70 border border-terracotta/30 flex items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-terracotta text-white">Top Pick</span>
+              <span class="text-xs font-medium text-slateMuted tabular-nums">~${estimateMinutes(top.distance)} min</span>
+            </div>
+            <div class="flex items-baseline gap-2.5 mt-1">
+              <span class="text-2xl font-bold text-ink tabular-nums">${formatKm(top.distance)}</span>
+              <span class="text-xs font-semibold text-terracotta tabular-nums">Watch: ${formatWatchTarget(top.distance)}</span>
+            </div>
+            <p class="text-[11px] text-slateMuted mt-0.5 truncate max-w-[230px]">${escapeHtml(top.note || `Planned Dec ${getDayNumber(top.plannedDate)}`)}</p>
+          </div>
+
+          <button type="button" onclick="openTileModal(${top.distance})" class="shrink-0 px-3.5 py-2.5 rounded-xl bg-terracotta text-white text-xs font-semibold shadow-sm hover:opacity-95 transition-opacity">
+            Select / Log
+          </button>
+        </div>
+      `;
+
+      if (runnersUp.length > 0) {
+        html += `<div class="grid grid-cols-2 gap-2 mt-2">`;
+        runnersUp.forEach(r => {
+          html += `
+            <button type="button" onclick="openTileModal(${r.distance})" class="flex items-center justify-between p-2.5 rounded-xl bg-paper border border-borderWarm hover:border-ink/40 text-left transition-colors">
+              <div>
+                <span class="block text-sm font-bold text-ink tabular-nums">${formatKm(r.distance)}</span>
+                <span class="block text-[10px] text-slateMuted tabular-nums">Watch ${formatWatchTarget(r.distance)} · ~${estimateMinutes(r.distance)}m</span>
+              </div>
+              <span class="text-xs text-slateMuted font-medium">Alt →</span>
+            </button>
+          `;
+        });
+        html += `</div>`;
+      }
+
+      outputEl.innerHTML = html;
+    }
+
+    function renderGrid(metrics) {
+      const gridEl = document.getElementById('gridView');
+      const { recs } = getRecommendations(metrics);
+      const topRecDist = recs.length > 0 ? recs[0].distance : null;
+
+      gridEl.innerHTML = state.tiles.map(tile => {
+        const plannedDay = getDayNumber(tile.plannedDate);
+        const isTopRec = !tile.completed && tile.distance === topRecDist;
+
+        let cardClasses = 'relative flex flex-col justify-between p-2.5 sm:p-3 rounded-xl border text-left transition-all active:scale-[0.98] min-h-[76px] ';
+        let badgeHtml = '';
+
+        if (tile.completed) {
+          cardClasses += 'bg-sageSoft border-sage/40 text-ink';
+          const doneDay = tile.completedDate ? `Dec ${getDayNumber(tile.completedDate)}` : 'Done';
+          badgeHtml = `
+            <span class="inline-flex items-center gap-0.5 text-[10px] font-semibold text-sage tabular-nums">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              ${doneDay}
+            </span>
+          `;
+        } else if (isTopRec) {
+          cardClasses += 'bg-surface border-terracotta ring-1 ring-terracotta/40 shadow-sm text-ink';
+          badgeHtml = `<span class="text-[10px] font-bold text-terracotta tabular-nums">Dec ${plannedDay} ★</span>`;
+        } else {
+          cardClasses += 'bg-surface border-borderWarm hover:border-ink/35 text-ink';
+          badgeHtml = `<span class="text-[10px] font-medium text-slateMuted tabular-nums">Dec ${plannedDay}</span>`;
+        }
+
+        return `
+          <button type="button" onclick="openTileModal(${tile.distance})" class="${cardClasses}">
+            <div class="flex items-center justify-between w-full">
+              ${badgeHtml}
+            </div>
+            <div class="mt-1.5">
+              <span class="block text-base sm:text-lg font-bold tracking-tight tabular-nums ${tile.completed ? 'text-sage' : 'text-ink'}">
+                ${tile.distance.toFixed(1)}<span class="text-xs font-medium ml-0.5">km</span>
+              </span>
+              <span class="block text-[10px] text-slateMuted tabular-nums">~${estimateMinutes(tile.distance)}m</span>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderTimeline(metrics) {
+      const timelineEl = document.getElementById('timelineView');
+      const refDay = metrics.refDay;
+
+      timelineEl.innerHTML = DEC_DAYS.map(dayObj => {
+        // Find tiles assigned to this day (or completed on this day)
+        const assignedTiles = state.tiles.filter(t =>
+          (t.completed && t.completedDate === dayObj.dateStr) ||
+          (!t.completed && t.plannedDate === dayObj.dateStr)
+        );
+
+        const isToday = dayObj.day === refDay;
+        const isTravel = dayObj.day === 7 || dayObj.day === 13;
+        const isFrance = dayObj.day >= 8 && dayObj.day <= 12;
+
+        let tagClass = 'bg-paper text-slateMuted border-borderWarm';
+        if (isTravel) tagClass = 'bg-amberSoft text-amberWarn border-amberWarn/30';
+        else if (isFrance) tagClass = 'bg-sageSoft text-sage border-sage/30';
+
+        const rowBorder = isToday ? 'border-terracotta ring-1 ring-terracotta/30' : 'border-borderWarm';
+
+        let tilesHtml = '';
+        if (assignedTiles.length === 0) {
+          tilesHtml = `<span class="text-xs text-slateMuted italic">No run assigned</span>`;
+        } else {
+          tilesHtml = assignedTiles.map(t => {
+            const pillStyle = t.completed
+              ? 'bg-sage text-white'
+              : 'bg-paper border border-borderWarm text-ink hover:border-terracotta';
+            return `
+              <button type="button" onclick="openTileModal(${t.distance})" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold tabular-nums transition-colors ${pillStyle}">
+                ${t.completed ? '✓ ' : ''}${formatKm(t.distance)}
+              </button>
+            `;
+          }).join(' ');
+        }
+
+        const primaryNote = assignedTiles.length > 0 ? assignedTiles[0].note : '';
+
+        return `
+          <div class="bg-surface border ${rowBorder} rounded-xl p-3 flex items-center justify-between gap-3">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-xs font-bold text-ink tabular-nums">${dayObj.label}</span>
+                ${isToday ? '<span class="text-[10px] font-bold uppercase px-1.5 py-0.2 bg-terracotta text-white rounded">Today</span>' : ''}
+                <span class="text-[10px] font-medium px-2 py-0.5 rounded-full border ${tagClass}">${dayObj.tag}</span>
+              </div>
+              ${primaryNote ? `<p class="text-[11px] text-slateMuted truncate mt-1">${escapeHtml(primaryNote)}</p>` : ''}
+            </div>
+            <div class="shrink-0 flex items-center gap-1.5">
+              ${tilesHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Modal Logic
+    function openTileModal(distance) {
+      const tile = state.tiles.find(t => t.distance === Number(distance));
+      if (!tile) return;
+
+      activeModalDistance = tile.distance;
+
+      const badge = document.getElementById('modalStatusBadge');
+      const toggleBtn = document.getElementById('modalToggleCompleteBtn');
+
+      if (tile.completed) {
+        badge.textContent = `Completed · Dec ${getDayNumber(tile.completedDate || state.referenceDate)}`;
+        badge.className = 'inline-block px-2 py-0.5 rounded-md text-[11px] font-semibold uppercase tracking-wider mb-1 bg-sageSoft text-sage';
+        toggleBtn.textContent = 'Mark Incomplete';
+        toggleBtn.className = 'flex-[1.6] py-2.5 px-4 rounded-xl text-xs font-semibold text-ink bg-paper border border-borderWarm hover:bg-borderWarm/50 transition-colors';
+      } else {
+        badge.textContent = 'Remaining Target';
+        badge.className = 'inline-block px-2 py-0.5 rounded-md text-[11px] font-semibold uppercase tracking-wider mb-1 bg-terracottaSoft text-terracotta';
+        toggleBtn.textContent = 'Mark Complete ✓';
+        toggleBtn.className = 'flex-[1.6] py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-sage hover:opacity-95 transition-opacity shadow-sm';
+      }
+
+      document.getElementById('modalTitle').textContent = formatKm(tile.distance);
+      document.getElementById('modalRoleText').textContent = tile.note || 'Half-Advent distance tile';
+      document.getElementById('modalWatchTarget').textContent = formatWatchTarget(tile.distance);
+      document.getElementById('modalEstTime').textContent = `${estimateMinutes(tile.distance)} min`;
+
+      document.getElementById('modalPlannedDate').value = tile.plannedDate || '2026-12-01';
+      document.getElementById('modalCompletedDate').value = tile.completedDate || state.referenceDate;
+      document.getElementById('modalNoteInput').value = tile.note || '';
+
+      const modal = document.getElementById('tileModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeTileModal() {
+      const modal = document.getElementById('tileModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      activeModalDistance = null;
+    }
+
+    function saveModalChanges(toggleComplete) {
+      if (activeModalDistance === null) return;
+      const tile = state.tiles.find(t => t.distance === activeModalDistance);
+      if (!tile) return;
+
+      tile.plannedDate = document.getElementById('modalPlannedDate').value;
+      tile.note = document.getElementById('modalNoteInput').value.trim();
+      const chosenCompletedDate = document.getElementById('modalCompletedDate').value;
+
+      if (toggleComplete) {
+        tile.completed = !tile.completed;
+        tile.completedDate = tile.completed ? chosenCompletedDate : null;
+        showToast(tile.completed
+          ? `Logged ${formatKm(tile.distance)} on Dec ${getDayNumber(tile.completedDate)}!`
+          : `Unmarked ${formatKm(tile.distance)}.`
+        );
+      } else {
+        if (tile.completed) {
+          tile.completedDate = chosenCompletedDate;
+        }
+        showToast(`Updated ${formatKm(tile.distance)} details.`);
+      }
+
+      saveState();
+      closeTileModal();
+      renderAll();
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Populate Date Dropdowns & Bind Events
+    function init() {
+      const simSelect = document.getElementById('simDateSelect');
+      const plannedSelect = document.getElementById('modalPlannedDate');
+      const completedSelect = document.getElementById('modalCompletedDate');
+
+      DEC_DAYS.forEach(d => {
+        const opt1 = new Option(d.label, d.dateStr);
+        const opt2 = new Option(`${d.label} · ${d.tag}`, d.dateStr);
+        const opt3 = new Option(d.label, d.dateStr);
+        simSelect.add(opt1);
+        plannedSelect.add(opt2);
+        completedSelect.add(opt3);
+      });
+
+      simSelect.value = state.referenceDate;
+      simSelect.addEventListener('change', (e) => {
+        state.referenceDate = e.target.value;
+        saveState();
+        renderAll();
+      });
+
+      // Window selector buttons
+      document.querySelectorAll('.window-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.selectedWindow = Number(btn.dataset.window);
+          saveState();
+          renderAll();
+        });
+      });
+
+      // Leg status buttons
+      document.querySelectorAll('.leg-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.selectedLeg = btn.dataset.leg;
+          saveState();
+          renderAll();
+        });
+      });
+
+      // View tabs
+      document.getElementById('tabGridBtn').addEventListener('click', () => {
+        state.activeTab = 'grid';
+        saveState();
+        updateSelectorButtons();
+      });
+      document.getElementById('tabTimelineBtn').addEventListener('click', () => {
+        state.activeTab = 'timeline';
+        saveState();
+        updateSelectorButtons();
+      });
+
+      // Modal events
+      document.getElementById('closeModalBtn').addEventListener('click', closeTileModal);
+      document.getElementById('tileModal').addEventListener('click', (e) => {
+        if (e.target.id === 'tileModal') closeTileModal();
+      });
+      document.getElementById('modalSaveOnlyBtn').addEventListener('click', () => saveModalChanges(false));
+      document.getElementById('modalToggleCompleteBtn').addEventListener('click', () => saveModalChanges(true));
+
+      // Export JSON
+      document.getElementById('exportJsonBtn').addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `half-advent-150k-backup-${state.referenceDate}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Exported backup JSON file.');
+      });
+
+      // Import JSON
+      document.getElementById('importJsonInput').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const imported = JSON.parse(ev.target.result);
+            if (imported && Array.isArray(imported.tiles) && imported.tiles.length === 24) {
+              state = imported;
+              document.getElementById('simDateSelect').value = state.referenceDate || '2026-12-01';
+              saveState();
+              renderAll();
+              showToast('Backup imported successfully.');
+            } else {
+              showToast('Invalid backup file format.');
+            }
+          } catch (err) {
+            showToast('Could not parse JSON file.');
+          }
+          e.target.value = '';
+        };
+        reader.readAsText(file);
+      });
+
+      // Safe Inline Reset Flow
+      document.getElementById('resetTriggerBtn').addEventListener('click', () => {
+        document.getElementById('resetConfirmBox').classList.remove('hidden');
+      });
+      document.getElementById('resetCancelBtn').addEventListener('click', () => {
+        document.getElementById('resetConfirmBox').classList.add('hidden');
+      });
+      document.getElementById('resetConfirmBtn').addEventListener('click', () => {
+        state = createInitialState();
+        document.getElementById('simDateSelect').value = state.referenceDate;
+        saveState();
+        document.getElementById('resetConfirmBox').classList.add('hidden');
+        renderAll();
+        showToast('All data reset to default schedule.');
+      });
+
+      setupPWAInteractions();
+      renderAll();
+    }
+
+    // PWA Status, Service Worker Registration & Install Modal Helpers
+    function setupPWAInteractions() {
+      const statusPill = document.getElementById('pwaStatusPill');
+      const statusDot = document.getElementById('pwaStatusDot');
+      const statusText = document.getElementById('pwaStatusText');
+      const swStatusBadge = document.getElementById('swStatusBadge');
+      const pwaModal = document.getElementById('pwaSetupModal');
+      const nativeInstallBtn = document.getElementById('nativeInstallPromptBtn');
+      let deferredInstallPrompt = null;
+      let swRegistered = false;
+
+      function updateStatusIndicator() {
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        const isOnline = navigator.onLine;
+
+        if (!isOnline) {
+          statusPill.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amberSoft text-amberWarn border border-amberWarn/30';
+          statusDot.className = 'w-1.5 h-1.5 rounded-full bg-amberWarn';
+          statusText.textContent = swRegistered ? 'Offline Mode (Cached)' : 'Offline (Local Save)';
+        } else if (isStandalone) {
+          statusPill.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sageSoft text-sage border border-sage/25';
+          statusDot.className = 'w-1.5 h-1.5 rounded-full bg-sage';
+          statusText.textContent = 'Standalone App';
+        } else {
+          statusPill.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sageSoft text-sage border border-sage/25';
+          statusDot.className = 'w-1.5 h-1.5 rounded-full bg-sage';
+          statusText.textContent = swRegistered ? 'Offline Ready' : 'Installable PWA';
+        }
+      }
+
+      // Safely register ./sw.js when served over HTTP/HTTPS
+      if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+        try {
+          navigator.serviceWorker.register('./sw.js')
+            .then(() => {
+              swRegistered = true;
+              if (swStatusBadge) {
+                swStatusBadge.textContent = 'sw.js Active';
+                swStatusBadge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded bg-sageSoft border border-sage/30 text-sage';
+              }
+              updateStatusIndicator();
+            })
+            .catch(() => {
+              // Silent fallback when sw.js isn't deployed alongside the single HTML file
+            });
+        } catch (err) {
+          // Silent fallback
+        }
+      }
+
+      window.addEventListener('online', updateStatusIndicator);
+      window.addEventListener('offline', updateStatusIndicator);
+      updateStatusIndicator();
+
+      // Capture Android Chrome's native install prompt if available
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        if (nativeInstallBtn) {
+          nativeInstallBtn.classList.remove('hidden');
+        }
+      });
+
+      if (nativeInstallBtn) {
+        nativeInstallBtn.addEventListener('click', async () => {
+          if (!deferredInstallPrompt) return;
+          deferredInstallPrompt.prompt();
+          await deferredInstallPrompt.userChoice;
+          deferredInstallPrompt = null;
+          nativeInstallBtn.classList.add('hidden');
+          closePwaModal();
+        });
+      }
+
+      function openPwaModal() {
+        pwaModal.classList.remove('hidden');
+        pwaModal.classList.add('flex');
+      }
+
+      function closePwaModal() {
+        pwaModal.classList.add('hidden');
+        pwaModal.classList.remove('flex');
+      }
+
+      statusPill.addEventListener('click', openPwaModal);
+      document.getElementById('openPwaModalBtn').addEventListener('click', openPwaModal);
+      document.getElementById('closePwaModalBtn').addEventListener('click', closePwaModal);
+      document.getElementById('donePwaModalBtn').addEventListener('click', closePwaModal);
+      pwaModal.addEventListener('click', (e) => {
+        if (e.target.id === 'pwaSetupModal') closePwaModal();
+      });
+
+      // One-click download of companion cache-first sw.js
+      document.getElementById('downloadSwBtn').addEventListener('click', () => {
+        const swSource = [
+          "const CACHE_NAME = 'half-advent-150k-v1';",
+          "const ASSETS = ['./', './index.html', './half_advent_run.html'];",
+          "",
+          "self.addEventListener('install', (event) => {",
+          "  event.waitUntil(",
+          "    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS).catch(() => {}))",
+          "  );",
+          "  self.skipWaiting();",
+          "});",
+          "",
+          "self.addEventListener('activate', (event) => {",
+          "  event.waitUntil(",
+          "    caches.keys().then((keys) =>",
+          "      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))",
+          "    )",
+          "  );",
+          "  self.clients.claim();",
+          "});",
+          "",
+          "self.addEventListener('fetch', (event) => {",
+          "  if (event.request.method !== 'GET') return;",
+          "  event.respondWith(",
+          "    caches.match(event.request).then((cached) => {",
+          "      const fetched = fetch(event.request)",
+          "        .then((response) => {",
+          "          if (response && response.status === 200) {",
+          "            const clone = response.clone();",
+          "            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));",
+          "          }",
+          "          return response;",
+          "        })",
+          "        .catch(() => cached);",
+          "      return cached || fetched;",
+          "    })",
+          "  );",
+          "});"
+        ].join('\n');
+
+        const blob = new Blob([swSource], { type: 'application/javascript' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'sw.js';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Downloaded companion sw.js');
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
